@@ -19,23 +19,31 @@ tidy=TRUE, tidy.opts=list(width.cutoff=60), R.options=list(max.print=100))
 
 ## Data Wrangling, Exploration, Visualization
 
-### Name and EID here
+### Seungho Lee; SL46699
 
 #### Introduction 
 
 Paragraph or two introducing your datasets and variables, why they are interesting to you, etc.
 
+*I have decided to utilize the nbaplayers dataset and nbastats as my two datasets for my project. The nbaplayers dataset involves the players from the 2018-2019 season of the NBA and includes variables such as players' first and last names, team names, team city abbreviations, positions of each player, jersey number of players, and the height of players listed in inches. I have also utilized the nbastats dataset which involves the stat record of all the NBA players from the 2018-2019 season and includes variables such as name, weight, age, salary, points, blocks, steals, assists, rebounds, free throw percentages, field goal percentages, and minutes played. Growing up, basketball has always been a huge part of life. I loved playing basketball as well as watching NBA basketball. Whether I am on the court myself playing or watching my favorite player playing on TV, I was always engaged and interested in keeping up with the different statistics involved in the game of basketball.*
 ```{R}
 # read your datasets in here, e.g., with read_csv()
-
+library(tidyverse)
+nbastats2018_2019_2 <- read_csv("nbastats2018-2019 2.csv",col_types = cols(Height = col_skip(), Weight = col_number(), Team = col_skip(), Age = col_number(), Salary = col_number(), Points = col_number(), Blocks = col_number(), Steals = col_number(), Assists = col_number(), Rebounds = col_number(), `FT%` = col_number(), FTA = col_skip(), `FG3%` = col_skip(), FG3A = col_skip(), `FG%` = col_number(), FGA = col_skip(), MP = col_number(), G = col_skip(), PER = col_skip(), OWS = col_skip(), DWS = col_skip(), WS = col_skip(), WS48 = col_skip(), USG = col_skip(), BPM = col_skip(), VORP = col_skip()))
+nbastats <- nbastats2018_2019_2
+nba_players_19 <- read_csv("nba_players_19.csv", col_types = cols(X1 = col_skip(), number = col_number(), height = col_number()))
+nbaplayers <- nba_players_19
 ```
 
 #### Tidying: Reshaping
 
 If your datasets are tidy already, demonstrate that you can reshape data with pivot wider/longer here (e.g., untidy and then retidy). Alternatively, it may be easier to wait until the wrangling section so you can reshape your summary statistics. Note here if you are going to do this.
 
+*Both of my datasets were both very tidy. I have still provided below the utilization of pivot_wider and pivot_longer below. For the nbaplayers dataset, I have utilized the pivot_wider function in order to make the data go from 494 observations and 8 variables to 494 observations and 36 variables making the data overall "wider". All the NBA team names were put into separate columns and for each player the team city abbreviations were utilized as the values that were displayed under the matching respective teams (e.g. for player Bam Adebayo, a player for the Miami Heat, has the value "MIA" which is the city abbreviation for Miami under the Heat column). Additionally, for the nbastats dataset, I have utilized the pivot_longer function in order to make the data go from 521 observations and 12 variables to 1042 observations and 12 variables making the data overall "longer". The values from the the second column "weight" and third column "age" were put under one column named "Weight/Age" and their respective values were displayed on the adjacent column.*
 ```{R}
 # your tidying code (if applicable; can also wait until wrangling section)
+nbaplayers %>% pivot_wider(names_from="team", values_from="team_abbr")
+nbastats %>% pivot_longer(2:3,names_to="Weight/Age", values_to="Value")
 ```
 
     
@@ -43,11 +51,24 @@ If your datasets are tidy already, demonstrate that you can reshape data with pi
 
 ```{R}
 # your joining code
+nbaplayers$name<-paste(nbaplayers$first_name, nbaplayers$last_name, sep=" ")
+glimpse(nbastats)
+glimpse(nbaplayers)
+nbastats %>% distinct()
+nbaplayers %>% distinct()
+anti_join(nbastats, nbaplayers, by = c(Name = "name"))
+nomatch <- anti_join(nbastats, nbaplayers, by = c(Name = "name"))
+anti_join(nbaplayers, nbastats, by = c(name = "Name"))
+nomatch2 <-anti_join(nbaplayers, nbastats, by = c(name = "Name"))
 
 # your joining code
+semi_join(nbastats, nbaplayers, by = c(Name = "name"))
+joinedNBAdata <- semi_join(nbastats, nbaplayers, by = c(Name = "name"))
 ```
 
 Discussions of joining here. Feel encouraged to break up into more than once code chunk and discuss each in turn.
+
+*Prior to joining the two datasets together, a separate column had to be made for nbaplayers called "name" because the first and last names were split in this dataset for every NBA athlete. In the nbastats datasets there are 521 observations while the nbaplyers dataset has 494 observations. Since there is no duplicate NBA players in each dataset, the unique IDs are equivalent to the obserations/rows for each dataset. There are 65 players listed in nbastats but not listed in nbaplayers. There are 38 players listed in nbaplayers, but not listed in nbastats. After joining the two datasets utilizing semi_join, it showed that the two datasets have 456 names in common (456 observations and 12 variables). This made sense that the common names between the two datasets were 456. From the previous code involving "nomatch", it shows how there are 65 player names exclusive to nbastats, so 65 names were dropped from the nbastats datasets (521 minus 65 = 456). Similary, from "nomatch2", it shows how there are 38 player names that are exclusive to nbaplayers, so 38 names were dropped from the nbaplayers datasets (494 minus 38 = 456). I have decided to utilize the semi_join code instead of other joining codes such as inner_join because I wanted to work with all the stats of the players and I did not really need the character variables such as the players' team names and players' positions.*  
 
 ####  Wrangling
 
