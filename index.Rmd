@@ -118,12 +118,12 @@ Your discussion of plot 1
 # your plot 2
 joinedNBAdata %>% filter(Age<21)
 NBAyoung <- joinedNBAdata %>% filter(Age<21)
-ggplot(NBAyoung, aes(x = position, y = Points, fill=position))+ geom_bar(stat="summary",fun=mean) + geom_errorbar(stat="summary", fun.data=mean_se) + ggtitle("Average Points Per Game for NBA players Under 21 for Each Position") + ylab("Points (PPG)") + xlab("Positions") + scale_y_continuous(breaks = seq(0, 32, 4)) + theme(axis.text.x = element_text(angle=45, hjust=1),legend.position="none") 
+ggplot(NBAyoung, aes(x = position, y = Points, fill=position))+ geom_bar(stat="summary",fun=mean) + geom_errorbar(stat="summary", fun.data=mean_se) + ggtitle("Average Points Per Game for NBA players Under 21 for Each Position") + ylab("Points (PPG)") + xlab("Positions") + scale_y_continuous(breaks = seq(0, 20, 5)) + theme(axis.text.x = element_text(angle=45, hjust=1),legend.position="none") 
 ```
 
 Your discussion of plot 2
 
-*Before making the plot, a subset data was created from the joinedNBAdata just including NBA young players (younger than 21). A bar graph was generated utilizing the geom_bar function. The stat = "summary" function was utilized in order to display the mean values of the points per game for each position. Additionally, standard error bars were added utilizing geom_errorbar. The Y axis was adjusted to a range of 0 to 32 points in increments of 4. This bar clearly demonstrates that among NBA players who are younger than 21, the forward-guard players averaged the most points per game*
+*Before making the plot, a subset data was created from the joinedNBAdata just including NBA young players (younger than 21). A bar graph was generated utilizing the geom_bar function. The stat = "summary" function was utilized in order to display the mean values of the points per game for each position. Additionally, standard error bars were added utilizing geom_errorbar. The Y axis was adjusted to a range of 0 to 20 points in increments of 5. This bar clearly demonstrates that among NBA players who are younger than 21, the forward-guard players averaged the most points per game*
 ```{R}
 # your plot 3
 ggplot(joinedNBAdata, aes(x=Assists, y=..density.. )) + geom_histogram(bins = 15) + geom_density(color="red") + ggtitle("Distribution of NBA Assists") + ylab("Density") + xlab("Assists") + scale_x_continuous(breaks = seq(0, 12, 3)) + theme_minimal() 
