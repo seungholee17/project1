@@ -39,7 +39,7 @@ nbaplayers <- nba_players_19
 
 If your datasets are tidy already, demonstrate that you can reshape data with pivot wider/longer here (e.g., untidy and then retidy). Alternatively, it may be easier to wait until the wrangling section so you can reshape your summary statistics. Note here if you are going to do this.
 
-*Both of my datasets were both very tidy. I have still provided below the utilization of pivot_wider and pivot_longer below. For the nbaplayers dataset, I have utilized the pivot_wider function in order to make the data go from 494 observations and 8 variables to 494 observations and 36 variables making the data overall "wider". All the NBA team names were put into separate columns and for each player the team city abbreviations were utilized as the values that were displayed under the matching respective teams (e.g. for player Bam Adebayo, a player for the Miami Heat, has the value "MIA" which is the city abbreviation for Miami under the Heat column). Additionally, for the nbastats dataset, I have utilized the pivot_longer function in order to make the data go from 521 observations and 12 variables to 1042 observations and 12 variables making the data overall "longer". The values from the the second column "weight" and third column "age" were put under one column named "Weight/Age" and their respective values were displayed on the adjacent column.*
+*Both of my datasets were both very tidy. I have still provided below the utilization of pivot_wider and pivot_longer below. For the nbaplayers dataset, I have utilized the pivot_wider function in order to make the data go from 494 observations and 7 variables to 494 observations and 35 variables making the data overall "wider". All the NBA team names were put into separate columns and for each player, the team city abbreviations were utilized as the values that were displayed under the matching respective teams (e.g. for player Bam Adebayo, a player for the Miami Heat, has the value "MIA" which is the city abbreviation for Miami under the Heat column). Additionally, for the nbastats dataset, I have utilized the pivot_longer function in order to make the data go from 521 observations and 12 variables to 1042 observations and 12 variables making the data overall "longer". The values from the the second column "weight" and third column "age" were put under one column named "Weight/Age" and their respective values were displayed on the adjacent column.*
 ```{R}
 # your tidying code (if applicable; can also wait until wrangling section)
 nbaplayers %>% pivot_wider(names_from="team", values_from="team_abbr")
@@ -62,24 +62,42 @@ anti_join(nbaplayers, nbastats, by = c(name = "Name"))
 nomatch2 <-anti_join(nbaplayers, nbastats, by = c(name = "Name"))
 
 # your joining code
-semi_join(nbastats, nbaplayers, by = c(Name = "name"))
-joinedNBAdata <- semi_join(nbastats, nbaplayers, by = c(Name = "name"))
+inner_join(nbastats, nbaplayers, by = c(Name = "name"))
+joinedNBAdata <- inner_join(nbastats, nbaplayers, by = c(Name = "name")) %>% select(-first_name, -last_name)
+joinedNBAdata
+joinedNBAdata <- joinedNBAdata %>% na.omit()
+joinedNBAdata
 ```
 
 Discussions of joining here. Feel encouraged to break up into more than once code chunk and discuss each in turn.
 
-*Prior to joining the two datasets together, a separate column had to be made for nbaplayers called "name" because the first and last names were split in this dataset for every NBA athlete. In the nbastats datasets there are 521 observations while the nbaplyers dataset has 494 observations. Since there is no duplicate NBA players in each dataset, the unique IDs are equivalent to the obserations/rows for each dataset. There are 65 players listed in nbastats but not listed in nbaplayers. There are 38 players listed in nbaplayers, but not listed in nbastats. After joining the two datasets utilizing semi_join, it showed that the two datasets have 456 names in common (456 observations and 12 variables). This made sense that the common names between the two datasets were 456. From the previous code involving "nomatch", it shows how there are 65 player names exclusive to nbastats, so 65 names were dropped from the nbastats datasets (521 minus 65 = 456). Similary, from "nomatch2", it shows how there are 38 player names that are exclusive to nbaplayers, so 38 names were dropped from the nbaplayers datasets (494 minus 38 = 456). I have decided to utilize the semi_join code instead of other joining codes such as inner_join because I wanted to work with all the stats of the players and I did not really need the character variables such as the players' team names and players' positions.*  
+*Prior to joining the two datasets together, a separate column had to be made for nbaplayers called "name" because the first and last names were split in this dataset for every NBA athlete. In the nbastats datasets there are 521 observations while the nbaplyers dataset has 494 observations. Since there is no duplicate NBA players in each dataset, the unique IDs are equivalent to the obserations/rows for each dataset. There are 65 players listed in nbastats but not listed in nbaplayers. There are 38 players listed in nbaplayers, but not listed in nbastats. After joining the two datasets utilizing inner_join, it showed that the two datasets have 456 names in common (456 observations and 19 variables). This made sense that the common names between the two datasets were 456. From the previous code involving "nomatch", it shows how there are 65 player names exclusive to nbastats, so 65 names were dropped from the nbastats datasets (521 minus 65 = 456). Similary, from "nomatch2", it shows how there are 38 player names that are exclusive to nbaplayers, so 38 names were dropped from the nbaplayers datasets (494 minus 38 = 456). I have decided to utilize the inner_join code instead of other joining codes such as semi_join because I wanted to work with all the stats of the players and the character variables such as the players' team names and players' positions. I have also went ahead and dropped the first_name and last_name columns that came from the nbaplayers dataset because those columns were not needed anymore (456 observations and 17 variables now). With the joined data, I also went ahead and deleted all the rows that had NAs (417 observations and and 17 variables now). *  
 
 ####  Wrangling
 
 ```{R}
 # your wrangling code
-
+joinedNBAdata %>% mutate(pointspermin = Points/MP)
+LakersRoster <- joinedNBAdata %>% filter(team =="Lakers") %>% select(Name, Age) %>% arrange(desc(Age))
+LakersRoster
+joinedNBAdata %>% group_by(position) %>% summarize(n())
 # your wrangling code
-
+stringnba <- "LeBron James is the best player in the NBA today"
+str_view_all(stringnba, "[aeiouAEIOU]")
 # your wrangling code
+joinedNBAdata %>% group_by(team) %>% summarize(mean_height=mean(height))
+joinedNBAdata %>% group_by(team_abbr) %>% summarize(n_distinct(position))
+joinedNBAdata %>% mutate(assist_ratiopermin = Assists/MP)  %>% summarize(max(assist_ratiopermin))
+joinedNBAdata %>% group_by(team) %>% summarize(sd(Salary))
+joinedNBAdata %>% summarize(min(height))
+joinedNBAdata %>% group_by(team) %>% summarize(max(Weight), max(Age), max(Points), max(Blocks), max(Steals), max(Assists), max(Rebounds), max(MP), max(height), max(Weight))
+joinedNBAdata %>% group_by(team) %>% summarize(n())
+joinedNBAdata %>% group_by(team_abbr) %>% summarize(n())
+joinedNBAdata %>% group_by(position) %>% summarize(n())
+library(knitr)
+joinedNBAdata %>% filter(team =="Mavericks") %>% kable(digits = 3, align = 'c', col.names=str_to_title(names(.))) 
 ```
-
+*The dplyr function "mutate" was utilized to create a new column called pointspermin that showed how many points each players scored on a per minutes basis. The dplyr functions "filter", "select", and "arrange" were utilized in order to show the list of the Los Angeles Lakers' Roster in the order of oldest player to youngest player. The dplyr functions "group_by" and "summarize" was utilized in order to group the joinedNBAdata into positions of the NBA players and listing out the frequency of each position played. Next, a string was made called "stringnba" and a stringr function "str_view_all" was utilized in order to extract the vowls of the alphabet in the statement. After grouping the joinedNBAdata by teams, the "group_by" function along with "summarize" and "mean" was utilized in order to display the data of the average height for all 30 NBA teams. Similarly, the "group_by" function was utilized along with "summarize" and "n_distinct" in order to display the frequency of different positions for each 30 NBA teams. After defining my own function called "assist_ratiopermin", I was able to find the maximum value of the assist per minute ratio. The "sd" function was utilized along after grouping into teams in order to find the standard deviation of the salaries among the players for each of the 30 NBA teams. The "min" function was utilized with summarize in order to find the height of the shortest NBA player. The "max" function was utilized with summarize in order to find the max values of weight, age, points, blocks, steals, assists, rebounds, minutes played (mp), height, and salary across all 30 NBA teams. Also, for each of the categorical variables (team, team_abbr, and positions), a table was created that provided counts for each level. Lastly, utilizing kable, a neat table including different stats/info was made for the Dallas Mavericks *
 Your discussion of wrangling section here. Feel encouraged to break up into more than once code chunk and discuss each in turn.
 
 
@@ -87,21 +105,33 @@ Your discussion of wrangling section here. Feel encouraged to break up into more
 
 ```{R}
 # your plot 1
+library(ggplot2)
+joinedNBAdata %>% filter(Age>30)
+NBAvetsPlot <- joinedNBAdata %>% filter(Age>30)
+ggplot(data = NBAvetsPlot, aes(x = MP, y = Points, color = team)) + geom_point(size = 2) + ggtitle("NBA Vet's Point Stat vs. NBA Vet's Playing Time") + ylab("NBA Vet's Points Stat (PPG)") + xlab("NBA Vet's Playing Time (min)") + geom_line() + scale_x_continuous(lim=c(0,48)) + theme_classic()
 ```
 
 Your discussion of plot 1
 
+*Before making the plot, a subset data was created from the joinedNBAdata just including NBA veterans (Age>30). The function geom_point was utilized to create a scatter plot. The X-Axis included the playing time of the NBA veteran and the Y-Axis included the NBA veterans points per game stat. As expected, there was a general trend that as the NBA veteran player played more minutes, the more points he scored. Each point was color coordinated with the team the player played for and a line was added to connect the NBA veterans who played on the same team. The scale of the playing time was adjusted to 48 minutes because that is how long an NBA game is and I wanted to give my audience an insight of how there are only a few NBA veteran players that is playing for the entirety of the game. Lastly, I added the classic theme to this scatter plot to give an overall, clean appearance.* 
 ```{R}
 # your plot 2
+joinedNBAdata %>% filter(Age<21)
+NBAyoung <- joinedNBAdata %>% filter(Age<21)
+ggplot(NBAyoung, aes(x = position, y = Points, fill=position))+ geom_bar(stat="summary",fun=mean) + geom_errorbar(stat="summary", fun.data=mean_se) + ggtitle("Average Points Per Game for NBA players Under 21 for Each Position") + ylab("Points (PPG)") + xlab("Positions") + scale_y_continuous(breaks = seq(0, 32, 4)) + theme(axis.text.x = element_text(angle=45, hjust=1),legend.position="none") 
 ```
 
 Your discussion of plot 2
 
+*Before making the plot, a subset data was created from the joinedNBAdata just including NBA young players (younger than 21). A bar graph was generated utilizing the geom_bar function. The stat = "summary" function was utilized in order to display the mean values of the points per game for each position. Additionally, standard error bars were added utilizing geom_errorbar. The Y axis was adjusted to a range of 0 to 32 points in increments of 4. This bar clearly demonstrates that among NBA players who are younger than 21, the forward-guard players averaged the most points per game*
 ```{R}
 # your plot 3
+ggplot(joinedNBAdata, aes(x=Assists, y=..density.. )) + geom_histogram(bins = 15) + geom_density(color="red") + ggtitle("Distribution of NBA Assists") + ylab("Density") + xlab("Assists") + scale_x_continuous(breaks = seq(0, 12, 3)) + theme_minimal() 
 ```
 
 Your discussion of plot 3
+
+*With the joinedNBAdata set, a combo of a histogram and density plot was generated utilizing geom_histogram and geom_density. This plot displays the distribution of players for the different numbers of assists. The plot clearly shows how most of the NBA players are in between 0.75 and 4.5 assists per game indicated by the high density curve in that region and the high bars as well.*
 
 #### Concluding Remarks
 
